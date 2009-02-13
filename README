@@ -1,0 +1,9 @@
+## see site/index.html for more general info ##
+
+### BUILDING INFO ###
+this "qatool" is a rubygem, ########
+
+To build and install the gem, run "./build.sh"
+To build, install, and run the qatool in the "test" directory, run "./build.sh 1"
+to build, install, run the qatool in the test directory, and bundle new files for the website, run "./build.sh 1 1"
+To build, install, and bundle new files for the website, run "./build.sh 0 1"

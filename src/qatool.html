@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<title>qatool</title>
+	<!--BREAK1-->
+	<style>@import url("css/main.css");</style>
+	<script type="text/javascript" src="js/prototype.js"></script>
+	<script type="text/javascript" src="js/livepipe.net.js"></script>
+	<script type="text/javascript" src="js/swfobject.js"></script>
+	<script type="text/javascript" src="js/qatool.js"></script>
+	<script type="text/javascript" src="js/swfinfo.js"></script>
+	<!--BREAK2-->
+</head>
+<body>
+	<table id="wrapper" cellspacing="0">
+		<tr>
+			<td id="left">
+				<div>
+					<div id="qatoolTitle">
+						QA Tool <!--&nbsp;&nbsp;|&nbsp;&nbsp; <a href="#" onclick="showKeysModal()">key shortcuts</a>-->
+					</div>
+					<div id="embedAction">
+						<input type="button" value="embed" onclick="embedSWFS()"/>
+					</div>
+					<div class="clear"></div>
+				</div>
+				<div id="tabs">
+					<ul id="qatoolTabs" class="tabs">
+						<li><a href="#sTab">SWFS</a></li>
+						<li><a href="#fTab">FLASHVARS</a></li>
+					</ul>
+					<div class="clear"></div>
+				</div>
+				<div id="sTab">
+					<div id="tabContent">
+						<div id="selectSWF">
+							<h6>Select the swfs to embed</h6>
+							<select id="swfTabSWFList" multiple="true"></select>
+						</div>
+					</div>
+				</div>
+				<div id="fTab" style="display:none;"><!---->
+					<div id="tabContent">
+						<h6>Select a swf and set it's flashvars below</h6>
+						<select onchange="onFlashVarSWFListChange()" id="flashVarSWFList"></select>
+						<div class="hrWrapper"><hr/></div>
+						<div>
+							<div id="flashvarOptions"><a href="#" onclick="addFlashVar()">new</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#" onclick="clearCurrentFlashVars()">clear</a></div>
+							<div class="clear"></div>
+						</div>
+						<div class="clear"></div>
+						<div id="flashvarsDIV">
+							<!--<table style='width:100%'><tr><td width='1'><input size='10' type='text' /></td><td>&nbsp;</td><td width='100%'><input type='text' style='width:100%' /></td></tr></table>-->
+						</div>
+					</div>
+				</div>
+			</td>
+			<td id="contentContainer">
+				<table width="100%" cellspacing="0">
+					<tr>
+						<td id="top">
+							<a href="#" style="color:white" onclick="changeBodyColor('#FFF');return false;">w</a>
+							<a href="#" style="color:black" onclick="changeBodyColor('#000');return false;">b</a>
+							<a href="#" style="color:#0CF" onclick="changeBodyColor('#0CF');return false;">c</a>
+							<a href="#" style="color:#F06" onclick="changeBodyColor('#F06');return false;">m</a>
+							<a href="#" style="color:#f0d101" onclick="changeBodyColor('#f0d101');return false;">y</a>
+							<a href="#" style="color:#00AC00" onclick="changeBodyColor('#00AC00');return false;">g</a> &nbsp;|&nbsp;
+							<form name="clockform" class="clockform"><input name="clock" value="00:00:00.00" id="clockInput" /> <input type="button" value="start" onclick="toggleTimer();" id="timerButton" /></form> &nbsp;|&nbsp;
+							<input type="button" value="clear" onclick="clearswfs()" />  &nbsp;| &nbsp;<input id="backupBitmap" type="checkbox" checked="true" /> gif / jpeg
+						</td>
+					</tr>
+					<tr>
+						<td id="content">
+							<div id="embedWrapper"></div>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	<script type="text/javascript">
+		qatabs=new Control.Tabs('qatoolTabs');
+	</script>
+</body>
+</html>

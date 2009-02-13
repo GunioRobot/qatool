@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>BANNER QA TOOL</title>
+	<style>
+		body
+		{
+			margin-left:20px;
+			font:1.02em verdana;
+		}
+		h2
+		{
+			color:#00CCFF;
+			text-transform:uppercase;
+		}
+		a
+		{
+			color:#ff0066;
+			text-decoration:none;
+		}
+		a:hover
+		{
+			color:#ff0066;
+		}
+		div.indent{padding-left:20px;}
+		#wrapper{margin-bottom:25px;}
+	</style>
+</head>
+<body>
+<div id="wrapper">
+	<div id="summary">
+		<h2>qa tool summary</h2>
+		<div class="indent">
+			<p>The qatool is a ruby gem command-line utility that generates three things:</p>
+			<ol>
+				<li>qa html file (__qatool.html). <a href="preview/__qatool.html">Here's an example of the qatool.</a></li>
+				<li>banner preview html file (__preview.html). <a href="preview/__preview.html">Here's an example of the preview page.</a></li>
+				<li>swf summary (__summary.html) page which outlines and compares meta data against a specs excel sheet. <a href="preview/__summary.html">Here's an example of the summary.</a></li>
+			</ol>
+			<p>Everything that it generates is "static," meaning that if you change a spec sheet, add or remove swf's from the
+				directory being qa'd. You need to re-run the qatool command to re-generate the files.</p>
+		</div>
+	</div>
+	<div id="specsheet">
+		<h2>excel spec sheets</h2>
+		<div class="indent">
+			<p>The qatool searches for a "specs.xls" or "specs.xlsx" file in the working directory.
+				The spec sheet contains expected meta data for each swf, like K size, dimensions, frame-rate, etc.</p>
+			<p>Spec sheets must be a certain format in order for the qatool to read. Below is a template
+				excel sheet you can download and inspect, and use for further spec sheets.</p>
+			<p><strong>Spec sheets are not required for the qatool to function, the __summary.html file will not be generated if a spec sheet isn't present.</strong></p>
+			<p><a href="spec_example.zip">Example spec sheet</a></p>
+		</div>
+	</div>
+	<div id="installation">
+	<h2>installation steps</h2>
+		<div class="indent">
+			<p>Installation is a fairly painless process - but you will need administration rights.
+			<h4>windows:</h4>
+			<ol>
+				<li>Install "Ruby" <a href="ruby186-27_rc2.exe">with this installer</a>.
+					<strong>Make sure to "Enable RubyGems" from the "Choose Components" screen during installation.</strong></li>
+				<li>Download <a href="http://downloads.sourceforge.net/console/Console-2.00b142-Beta.zip?modtime=1232391855&big_mirror=0">"Console 2"</a>, which is a different console application. You should use this instead of the built in windows DOS command prompt</li>
+				<li>Unzip the console 2 file, and run the "Console.exe" executable.</li>
+				<li>Add gems.codeendeavor.com to the gem sources, run this command: <em>gem sources --add http://gems.codeendeavor.com</em> [ENTER]</li>
+				<li>Install the qatool gem, run command: <em>gem install qatool</em> [ENTER]</li>
+				<li>Shed a tear - it was so simple, and you're just that happy.</li>
+			</ol>
+			<h4>mac:</h4>
+			<ol>
+				<li>Ruby and RubyGems are installed by default on mac. Go to next step.</li>
+				<li>Open a terminal window (/Applications/Utilities/Terminal)</li>
+				<li>Update RubyGems, run command: <em>sudo gem update --system</em></li>
+				<li>Add gems.codeendeavor.com to the gem sources, run this command: <em>gem sources --add http://gems.codeendeavor.com</em> [ENTER]</li>
+				<li>Install the "qatool" gem, run command: <em>sudo gem install qatool</em> [ENTER]</li>
+				<li>Enter your password</li>
+				<li>Shed a tear - it was so simple, and you're just that happy.</li>
+			</ol>
+		</div>
+	</div>
+	<div id="usage">
+		<h2>using the qatool</h2>
+		<div class="indent">
+			<p>The general steps for windows and mac are outlined below, followed by an example "session" that you can follow.</p>
+			<h4>windows:</h4>
+			<ol>
+				<li>Start the "Console 2" application, (see windows installation step 2) if you don't already have console 2.</li>
+				<li>use the "cd" command to "change directory" into a directory that contains the swf's you want to QA.</li>
+				<li>run the qatool command: <em>qatool</em> [ENTER]</li>
+				<li>Two new files will be created: __qatool.html and __preview.html</li>
+				<li>An additional file will be created (__summary.html) if the directory contained a spec excel sheet.</li>
+			</ol>
+			<h4>mac:</h4>
+			<ol>
+				<li>open a terminal window (/Applications/Utilities/Terminal)</li>
+				<li>use the "cd" command to "change directory" into a directory that contains the swf's you want to QA.</li>
+				<li>run the qatool command: <em>qatool</em> [ENTER]</li>
+				<li>Two new files will be create: __qatool.html and __preview.html</li>
+				<li>An additional file will be created (__summary.html) if the directory contained a spec excel sheet.</li>
+			</ol>
+			<h4>step-by-step working session</h4>
+			<ol>
+				<li><a href="qatool_example.zip">Download this example zip file.</a></li>
+				<li>Unzip the file, and place the folder on your desktop.</li>
+				<li>Open "console 2" (win), or terminal (mac).</li>
+				<li>"cd" inside of the folder that is now on your desktop:
+					<ul>
+						<li><strong>win:</strong> <em>cd "C:/Documents and Settings/[USER_NAME]/Desktop/qatool_example/" </em>[ENTER] - replace [USER_NAME] with your
+							windows user name.</li>
+						<li><strong>mac:</strong> <em>cd ~/Desktop/qatool_example </em>[ENTER]</li>
+					</ul>
+				</li>
+				<li>Run the "qatool" command: <em>qatool</em> [ENTER]</li>
+				<li>Now use windows explorer or the finder, and look inside of the "qatool_example" directory, there will be a few
+					new files. (__qatool.html, __preview.html, __summary.html)</li>
+				</li>You can open all of those files to see the generated output.</li>
+			</ol>
+			<h4>what just happened?</h4>
+			<ul>
+				<li>You ran the "qatool" command from a directory that contained swf's you wanted to QA.</li>
+				<li>The qatool generated three files (__summary.html, __qatool.html, __preview.html)</li>
+			</ul>
+			<h4>workflow summary</h4>
+			<p>This is the workflow you can repeat for any other set of swf's you need to QA. Just "cd" into whichever
+				directory contains swf's, run the command, and view the output.</li>
+		</div>
+		<div id="updates">
+			<h2>Installing Updates</h2>
+			<div class="indent">
+				<p>Now and then, we may update the qatool, which will require you to install an  update. All you have to do
+					is run the below command.</p>
+				<ul>
+					<li>Windows: <em>gem update qatool</em></li>
+					<li>Mac: <em>sudo gem update qatool</em></li>
+				</ul>
+			</div>
+		</div>
+		<div id="conclusion">
+			<h2>conclusion</h2>
+			<div class="indent">
+				<p>The qatool is simple! One thing to remember is that it generates "static" files, which means a few things:</p>
+				<ul>
+					<li>The files are portable, they can be sent to anyone, anywhere.</li>
+					<li>No server needed to generate them. But you can place them on a server and they will still work.</li>
+					<li>Files must be re-generated if swf's are added or removed from a directory, or if the spec sheet changes.</li>
+				</ul>
+				<p>The qatool works even without a spec sheet - it won't generate the __summary.html page if a spec sheet isn't found.</li>
+				<h4>Technology Information</h4>
+				<p>If you want more information about Ruby, RubyGems, SWF Header Gem, or the Roo Gem, here are some links:
+				<ul>
+					<li><a href="http://ruby-lang.org">The Ruby Programming Language</a></li>
+					<li><a href="http://www.rubygems.org/">RubyGems</a></li>
+					<li><a href="http://code.google.com/p/swf-util/">SWF Header Gem</a></li>
+					<li><a href="http://roo.rubyforge.org/">Roo Gem</a></li>
+				</ul>
+			</div>
+		</div>
+		<div id="problems">
+			<h2>Problems?</h2>
+			<div class="indent">
+				<p>If you have problems, or find that the <em>qatool</em> is not generating any files - but it indeed should be, contact aaron.smith@mccannsf.com</p>
+			</div>
+		</div>
+		<div id="changelog">
+			<h2>Changelog</h2>
+			<div class="indent">
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
