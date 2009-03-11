@@ -1,4 +1,2 @@
-0 k for summary when no xls spec sheet is in dir
 horizontal scrolling for swf names
 generate spec sheet xlsx if spec sheet isn't found
-add install "roo" gem to qatool page
