@@ -15,13 +15,13 @@ var inFlashvarsTab=false;
 var keysModalShown;
 
 var defaultFlashVars=[
-	{key:"clickTag",value:"http://www.mccannsf.com/"},
-	{key:"clickTAG",value:"http://www.mccannsf.com/"},
-	{key:"clickTag1",value:"http://www.mccannsf.com/"},
-	{key:"clickTag2",value:"http://www.mccannsf.com/"},
-	{key:"clickTag3",value:"http://www.mccannsf.com/"},
-	{key:"clickTag4",value:"http://www.mccannsf.com/"},
-	{key:"clickTag5",value:"http://www.mccannsf.com/"}
+	{key:"clickTag",value:"http://www.mccannsf.com/clickTag"},
+	{key:"clickTAG",value:"http://www.mccannsf.com/clickTAG"},
+	{key:"clickTag1",value:"http://www.mccannsf.com/clickTag1"},
+	{key:"clickTag2",value:"http://www.mccannsf.com/clickTag2"},
+	{key:"clickTag3",value:"http://www.mccannsf.com/clickTag3"},
+	{key:"clickTag4",value:"http://www.mccannsf.comclickTag4"},
+	{key:"clickTag5",value:"http://www.mccannsf.com/clickTag5"}
 ];
 
 function addFlashVar(key,value)
