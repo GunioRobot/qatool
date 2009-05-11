@@ -16,11 +16,11 @@ var keysModalShown;
 
 var defaultFlashVars=[
 	{key:"clickTag",value:"http://www.mccannsf.com/clickTag"},
-	{key:"clickTAG",value:"http://www.mccannsf.com/clickTAG"},
+	{key:"clickTAG",value:"http://www.mccannsf.com/clickTAG_"},
 	{key:"clickTag1",value:"http://www.mccannsf.com/clickTag1"},
 	{key:"clickTag2",value:"http://www.mccannsf.com/clickTag2"},
 	{key:"clickTag3",value:"http://www.mccannsf.com/clickTag3"},
-	{key:"clickTag4",value:"http://www.mccannsf.comclickTag4"},
+	{key:"clickTag4",value:"http://www.mccannsf.com/clickTag4"},
 	{key:"clickTag5",value:"http://www.mccannsf.com/clickTag5"}
 ];
 
@@ -488,6 +488,15 @@ function changeBodyColor(color)
 	document.body.style.backgroundColor=color;
 }
 
+function resetTimer()
+{
+	clearTimeout(clocktimer);
+	readout='00:00:00.00';
+	document.clockform.clock.value=readout;
+	$("timerButton").value="start";
+	isTiming=false;
+}
+
 function toggleTimer()
 {
 	if(isTiming)stopTimer();
@@ -508,12 +517,11 @@ function startTimer(skipEmbedCall)
 	if(!skipEmbedCall)embedSWFS();
 }
 
-function stopTimer(resetToZeros)
+function stopTimer()
 {
 	isTiming=false;
 	clearTimeout(clocktimer);
 	$("timerButton").value="start";
-	if(resetToZeros)clearALL();
 }
 
 ///////////////////////////////////////////////////////////////

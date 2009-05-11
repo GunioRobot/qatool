@@ -117,8 +117,8 @@ swfs.each do |swf| #backup bitmap discovery and swf meta discovery
   if jpgExist then backupbitmaps[swf]=jpg
   elsif gifExist then backupbitmaps[swf]=gif end
   if backupbitmaps[swf] then backupbitmap_sizes_by_swf[swf]=File.read(backupbitmaps[swf]).length end
-  swf_sizes_by_swf[swf]=File.read(swf).length
-  #swf_sizes_by_swf[swf]=File.size(swf)
+  #swf_sizes_by_swf[swf]=File.read(swf).length
+  swf_sizes_by_swf[swf]=File.size(swf)
   swf_meta_by_swf[swf]=SwfUtil::read_header(swf)
   
   if swf.match(fsr) then name=swf.split(fs)[-1]
