@@ -24,15 +24,16 @@ var defaultFlashVars=[
 	{key:"clickTag5",value:"http://www.mccannsf.com/clickTag5"}
 ];
 
-function addFlashVar(key,value)
+function addFlashVar(key,value,saveBefore)
 {
+	if(saveBefore)onFlashVarSWFListChange();
 	var nh;
 	var keyID=randomUUID();
 	var valueID=randomUUID();
 	if(!flashvarObjectIDSBySWFHash[curSWFHash])flashvarObjectIDSBySWFHash[curSWFHash]=[];
 	flashvarObjectIDSBySWFHash[curSWFHash].push({key:keyID,value:valueID});
 	if(key&&value) nh = "<table style='width:100%'><tr><td width='1'><input size='10' type='text' id='"+keyID+"' value='"+key+"'/></td><td>&nbsp;</td><td width='100%'><input type='text' id='"+valueID+"' style='width:100%' value='"+value+"' /></td></tr></table>";
-	else var nh = "<table style='width:100%'><tr><td width='1'><input size='10' type='text' id='"+keyID+"'/></td><td>&nbsp;</td><td width='100%'><input type='text' id='"+valueID+"' style='width:100%' /></td></tr></table>";
+	else nh = "<table style='width:100%'><tr><td width='1'><input size='10' type='text' id='"+keyID+"'/></td><td>&nbsp;</td><td width='100%'><input type='text' id='"+valueID+"' style='width:100%' /></td></tr></table>";
 	$(curSWFHash).innerHTML+=nh;
 }
 
