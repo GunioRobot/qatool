@@ -214,7 +214,7 @@ files.each do |file|
       error_output << "<td>#{file_meta[:frame_rate]}</td>"
       error_output << "<td>#{file_meta[:width]}</td>"
       error_output << "<td>#{file_meta[:height]}</td>"
-      error_output << "<td>#{file_meta[:size]}</td>"
+      error_output << "<td>#{file_meta[:size]}K</td>"
       error_output << "</tr>"
     elsif file_meta[:type]=="bitmap"
       error_output << "<td class='noSpecSheetEntry'>#{file}</td>"
@@ -237,7 +237,7 @@ files.each do |file|
       if file_meta[:height].to_i != spec_meta[:height] then error_output<<"<td class='error'>expected: #{spec_meta[:height].to_i} actual: #{file_meta[:height]}</td>"
       else error_output << "<td>#{file_meta[:height]}</td>" end
       if file_meta[:size] > spec_meta[:size].to_f then error_output << "<td class='error'>expected: #{spec_meta[:size].to_f} actual: #{file_meta[:size]}K</td>"
-      else error_output << "<td>#{file_meta[:size]}</td>" end
+      else error_output << "<td>#{file_meta[:size]}K</td>" end
       error_output<<"</tr>"
     elsif file_meta[:type]=="bitmap"
       error_output << "<td>#{file}</td>"
