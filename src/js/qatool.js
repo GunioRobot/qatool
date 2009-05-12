@@ -341,7 +341,8 @@ function init()
 		for(i;i<l;i++)
 		{
 			swf=swfInfo[i];
-			$("previewWrapper").innerHTML+="<a class='previewPageLinkF' href='#' onclick=\"embedSWF({},\'"+swf.file+"\',\'"+swf.meta.width+"\',\'"+swf.meta.height+"\',\'"+swf.meta.version+"\',null,true);resetTitle();\">"+ ((swf.previewTitle) ? swf.previewTitle : swf.file)+"</a><br/>";
+			if(swf.type=="swf")$("previewWrapper").innerHTML+="<a class='previewPageLinkF' href='#' onclick=\"embedSWF({},\'"+swf.file+"\',\'"+swf.meta.width+"\',\'"+swf.meta.height+"\',\'"+swf.meta.version+"\',null,true);resetTitle();\">"+ ((swf.previewTitle) ? swf.previewTitle : swf.file)+"</a><br/>";
+			else $("previewWrapper").innerHTML+="<a class='previewPageLinkF' href='#' onclick=\"embedBitmap('"+swf.file+"',true)\">"+ ((swf.previewTitle) ? swf.previewTitle : swf.file)+"</a><br/>";
 		}
 	}
 	else
@@ -468,8 +469,9 @@ function embedSWF(vars,swfFile,width,height,version,backupBitmapFile,clearCurren
 	swfobject.embedSWF(swfFile,flashEmbedID,width,height,version,null,vars,params,attributes);
 }
 
-function embedBitmap(file)
+function embedBitmap(file,clearCurrent)
 {
+	if(clearCurrent)$("embedWrapper").innerHTML="";
 	var content="<table width='100%'><tr><td width='1%'>";
 	content+="<img src='"+file+"' />"
 	content+="</td>";
