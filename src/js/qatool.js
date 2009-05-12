@@ -370,7 +370,7 @@ function fit()
 	adjustHeight();
 }
 
-function addSWFSToList(selectObj)
+function addSWFSToList(selectObj,allFiles)
 {
 	var list=selectObj;
 	var i=0;
@@ -378,6 +378,7 @@ function addSWFSToList(selectObj)
 	var option;
 	for(i;i<l;i++)
 	{
+		if(!allFiles && swfInfo[i].type=="bitmap")continue;
 		option=document.createElement('option');
 		option.text=swfInfo[i].name;
 		option.value=swfInfo[i].hash;
@@ -388,12 +389,12 @@ function addSWFSToList(selectObj)
 
 function addSWFSToSWFTabSWFList()
 {
-	addSWFSToList(swfTabSWFList);
+	addSWFSToList(swfTabSWFList,true);
 }
 
 function addSWFSToFlashvarsSWFList()
 {
-	addSWFSToList(flashVarSWFList);
+	addSWFSToList(flashVarSWFList,false);
 }
 
 function canEmbedSWFS()
@@ -404,6 +405,8 @@ function canEmbedSWFS()
 
 function embedSWFS()
 {
+	stopTimer();
+	resetTimer();
 	var list=swfTabSWFList;
 	if(list.selectedIndex==-1)
 	{
@@ -415,6 +418,7 @@ function embedSWFS()
 	saveCurrentFlashVarData();
 	var hashes=getSelectedValuesFromMultiSelect(list);
 	var indexes=getSelectedIndexesFromMultiSelect(list);
+	var hadSWF=false;
 	if(hashes&&hashes.length>0)
 	{
 		i=0;
@@ -429,12 +433,17 @@ function embedSWFS()
 				k=objs.length;
 				flashvars={};
 				for(j;j<k;j++)flashvars[objs[j].key]=objs[j].value;
-				embedSWF(flashvars,si.file,si.meta.width,si.meta.height,si.meta.version,si.backupBitmap);
+				if(!si.type || si.type=="swf")
+				{
+					embedSWF(flashvars,si.file,si.meta.width,si.meta.height,si.meta.version,si.backupBitmap);
+					hadSWF=true;
+				}
+				if(si.type=="bitmap") embedBitmap(si.file)
 			}
 			else embedSWF({},si.file,si.meta.width,si.meta.height,si.meta.version,si.backupBitmap);
 		}
 	}
-	startTimer(true);
+	if(hadSWF)startTimer(true);
 }
 
 function embedSWF(vars,swfFile,width,height,version,backupBitmapFile,clearCurrent)
@@ -457,6 +466,14 @@ function embedSWF(vars,swfFile,width,height,version,backupBitmapFile,clearCurren
 	var params={wmode:"transparent"};
 	var attributes={id:flashEmbedID,name:flashEmbedID};
 	swfobject.embedSWF(swfFile,flashEmbedID,width,height,version,null,vars,params,attributes);
+}
+
+function embedBitmap(file)
+{
+	var content="<table width='100%'><tr><td width='1%'>";
+	content+="<img src='"+file+"' />"
+	content+="</td>";
+	$("embedWrapper").innerHTML+=content;
 }
 
 function clearswfs()

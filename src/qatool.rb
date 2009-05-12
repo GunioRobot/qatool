@@ -5,6 +5,7 @@ require "roo"
 require "swfheader"
 require "optparse"
 
+#setup optparse
 OPTIONS={}
 OPTIONS[:run]=true
 OPTIONS[:spec]=nil
@@ -14,6 +15,9 @@ opts=OptionParser.new do |opts|
   end
   opts.on("-a", "--auto-clicktags", "Automatically map the click tag destination, and click tag type from a specsheet, as the default click tag to the banners in the qatool.") do |s|
     OPTIONS[:autoClickTags]=s if s != nil
+  end
+  opts.on("-b", "--list-backup-bitmaps", "Whether or not to list jpg, jpeg and gif files in the files list in the qatool.") do |s|
+    OPTIONS[:listBackupBitmaps]=s if s != nil
   end
   opts.on_tail("-h", "--help", "Show this usage statement.") do |h|
     puts opts
@@ -28,6 +32,7 @@ rescue Exception => e
 end
 if not OPTIONS[:run] then exit(0) end
 
+#method and class definitions / updates
 def rand_uuid
   [8,4,4,4,12].map {|n| rand_hex_3(n)}.join('-').to_s
 end
@@ -62,12 +67,7 @@ class File
   end
 end
 
-swfs=Dir.glob(File.join("**","*.swf"))
-if not swfs or swfs.length < 1
-  puts "No swfs, nothing to do."
-  exit(0)
-end
-
+#check for spec xls sheet
 if File.exists?("specs.xlsx") then OPTIONS[:spec]="specs.xlsx" end
 if File.exists?("specs.xls") then OPTIONS[:spec]="specs.xls" end
 if not OPTIONS[:spec]
@@ -81,18 +81,68 @@ bs="\\"
 fsr=/\//
 bsr=/\\/
 swfr=/\.swf/
-backupbitmaps={}
-filenameLookup={}
-swf_meta_by_swf={}
-swf_meta_by_short_swf_name={}
-swf_sizes_by_swf={}
-backupbitmap_sizes_by_swf={}
+jpgr=/\.jpg/
+jpegr=/\.jpeg/
+gifr=/\.gif/
 error_output=""
 templates_path=""
 qatool_template=""
 error_template=""
 preview_template=""
-excelcvt=""
+file_meta_by_file={}
+specs_by_file={}
+files=[]
+swfs=Dir.glob(File.join("**","*.swf"))
+jpgs=Dir.glob(File.join("**","*.jpg"))
+gifs=Dir.glob(File.join("**","*.gif"))
+jpegs=Dir.glob(File.join("**","*.jpeg"))
+if swfs.length>0
+  files<<swfs
+  swfs.each do |file|
+    meta={}
+    header=SwfUtil::read_header(file)
+    meta[:type]="swf"
+    meta[:version]=header.version
+    meta[:size]=header.size/1024
+    meta[:width]=header.width
+    meta[:height]=header.height
+    meta[:frame_rate]=header.frame_rate
+    meta[:frame_count]=header.frame_count
+    file_meta_by_file[file]=meta
+  end
+end
+if jpgs.length>0
+  files<<jpgs
+  jpgs.each do |file|
+    size=File.size(file)/1024
+    type="bitmap"
+    file_meta_by_file[file]={:size=>size,:type=>type}
+  end
+end
+if gifs.length>0
+  files<<gifs
+  gifs.each do |file|
+    size=File.size(file)/1024
+    type="bitmap"
+    file_meta_by_file[file]={:size=>size,:type=>type}
+  end
+end
+if jpegs.length>0
+  files<<jpegs
+  jpegs.each do |file|
+    size=File.size(file)/1024
+    type="bitmap"
+    file_meta_by_file[file]={:size=>size,:type=>type}
+  end
+end
+files.flatten!
+files.sort!
+if swfs.length < 1 and jpgs.length < 1 and gifs.length < 1 and jpegs.length <1
+  puts "No files, nothing to do."
+  exit(0)
+end
+
+#find templates
 df=Gem.default_path
 df.each do |p|
   d=Dir.glob(p+"/gems/qatool**/lib/*")
@@ -109,50 +159,18 @@ templates_path.each do |t|
 end
 error_template_contents=File.read(error_template)
 
-swfs.each do |swf| #backup bitmap discovery and swf meta discovery
-  jpg=swf.sub(swfr,".jpg")
-  gif=swf.sub(swfr,".gif")
-  jpgExist=File.exists?(jpg)
-  gifExist=File.exists?(gif)
-  if jpgExist then backupbitmaps[swf]=jpg
-  elsif gifExist then backupbitmaps[swf]=gif end
-  if backupbitmaps[swf] then backupbitmap_sizes_by_swf[swf]=File.read(backupbitmaps[swf]).length end
-  #swf_sizes_by_swf[swf]=File.read(swf).length
-  swf_sizes_by_swf[swf]=File.size(swf)
-  swf_meta_by_swf[swf]=SwfUtil::read_header(swf)
-  
-  if swf.match(fsr) then name=swf.split(fs)[-1]
-  elsif swf.match(bsr) then name=swf.split(bs)[-1]
-  else name=swf end
-  swf_meta_by_short_swf_name[name]=swf_meta_by_swf[swf]
-  
-  if not OPTIONS[:spec_404]  
-    if filenameLookup[name] then warn_duplicate end
-    filenameLookup[name]=swf
-    if jpgExist then bmp=jpg end
-    if gifExist then bmp=gif end
-    if bmp and bmp.match(bsr) then bmpName=bmp.split(fs)[-1]
-    elsif bmp and bmp.match(bsr) then bmpName=bmp.split(bs)[-1] end
-    if bmpName then filenameLookup[bmpName]=bmp end
-  end
-end
-
 FileUtils.rm_rf("__summary.html")
 if OPTIONS[:spec] and not OPTIONS[:spec_404]
   if OPTIONS[:spec].match(/\.xlsx/) then e=Excelx.new(OPTIONS[:spec])
   else e=Excel.new(OPTIONS[:spec]) end
   sheet=1;row=1
-  summary_swfs=[]
-  summary_swfsByFile={}
-  summary_bmps=[]
-  summary_bmpsByFile={}
-  if e.sheets && e.sheets.length > 1
-    e.default_sheet = e.sheets[1]
-    if not e.cell(2,"A").to_s.match(/\.swf/)
+  if e.sheets && e.sheets.length>1
+    e.default_sheet=e.sheets[1]
+    if not e.cell(2,"A").to_s.match(swfr)
       puts "The spec sheet does not appear to be the correct format. A summary will be generated, but it will not be against a spec sheet."
       OPTIONS[:spec_404]=true
     end
-  elsif e.sheets && e.sheets.length < 2
+  elsif e.sheets && e.sheets.length<2
     puts "The spec sheet does not appear to be the correct format. A summary will be generated, but it will not be against a spec sheet."
     OPTIONS[:spec_404]=true
   end
@@ -164,94 +182,110 @@ if OPTIONS[:spec] and not OPTIONS[:spec_404]
       while true
         if e.cell(row,"A")
           file=e.cell(row,"A")
-          if not file.match(/\.swf/) then next end
-          if file.match(/\.swf/)
-            obj = {
-                :file=>e.cell(row,'A'),:version=>e.cell(row,"B"),:fps=>e.cell(row,"C"),:width=>(e.cell(row,"D").split("x")[0]),
+          if file.match(swfr)
+            obj={
+                :file=>file,:version=>e.cell(row,"B"),:frame_rate=>e.cell(row,"C"),:width=>(e.cell(row,"D").split("x")[0]),
                 :height=>(e.cell(row,"D").split("x")[1]),:size=>e.cell(row,"E"),:seconds=>e.cell(row,"F"),:click=>e.cell(row,"G"),:clickTag=>e.cell(row,"H"),
                 :previewTitle=>(e.cell(row,"I"))
             }
-            summary_swfs.push(obj)
-            summary_swfsByFile[file]=obj
-          elsif file.match(/\.gif|\.jpg/)
-            obj = {
-                :file=>e.cell(row,'A'),:width=>(e.cell(row,"D").split("x")[0]),:height=>(e.cell(row,"D").split("x")[1]),:size=>e.cell(row,"E"),
-                :seconds=>e.cell(row,"F"),:click=>e.cell(row,"G"),:clickTag=>e.cell(row,"H")
-            }
-            summary_bmpsByFile[file]=obj
-            summary_bmps.push(obj)
+          elsif file.match(/(\.gif)|(\.jpg)/)
+            obj={:file=>file,:size=>e.cell(row,"E")}
           end
+          specs_by_file[file]=obj
         else
           break
         end
         row+=1
       end
     end
-    error_output<<"<tr class='metaInfo'>"
-    if swfs.length == 0 then no_swfs end
-    summary_swfs.each do |ss|
-      file=ss[:file]
-      longFile=filenameLookup[file]
-      meta=swf_meta_by_swf[longFile]
-      if meta==nil then next end
-      swfsize=(swf_sizes_by_swf[longFile].to_f/1024).round(2)
+  end
+end
+
+error_output<<"<tr class='metaInfo'>"
+if files.length == 0 then no_swfs end
+files.each do |file|
+  file_meta=file_meta_by_file[file]
+  spec_meta=specs_by_file[file]
+  if not file_meta then next end
+  if not spec_meta
+    if file_meta[:type]=="swf"
+      error_output << "<td class='noSpecSheetEntry'>#{file}</td>"
+      error_output << "<td>#{file_meta[:version]}</td>"
+      error_output << "<td>#{file_meta[:frame_rate]}</td>"
+      error_output << "<td>#{file_meta[:width]}</td>"
+      error_output << "<td>#{file_meta[:height]}</td>"
+      error_output << "<td>#{file_meta[:size]}</td>"
+      error_output << "</tr>"
+    elsif file_meta[:type]=="bitmap"
+      error_output << "<td class='noSpecSheetEntry'>#{file}</td>"
+      error_output << "<td>N/A</td>"
+      error_output << "<td>N/A</td>"
+      error_output << "<td>N/A</td>"
+      error_output << "<td>N/A</td>"
+      error_output << "<td>#{file_meta[:size]}K</td>"
+      error_output << "</tr>"
+    end
+  else
+    if file_meta[:type]=="swf"
       error_output<<"<td>#{file}</td>"
-      if ss[:version].to_i != meta.version then error_output<<"<td class='error'>expected: #{ss[:version].to_i} actual: #{meta.version}</td>"
-      else error_output << "<td>#{meta.version}</td>" end
-      if ss[:fps]!=meta.frame_rate then error_output << "<td class='error'>expected: #{ss[:fps].to_i} actual: #{meta.frame_rate}</td>"
-      else error_output << "<td>#{meta.frame_rate}</td>" end
-      if ss[:width].to_i!=meta.width then error_output << "<td class='error'>expected: #{ss[:width].to_i} actual: #{meta.width}</td>"
-      else error_output << "<td>#{meta.width}</td>" end  
-      if ss[:height].to_i!=meta.height then error_output<<"<td class='error'>expected: #{ss[:height].to_i} actual: #{meta.height}</td>"
-      else error_output << "<td>#{meta.height}</td>" end
-      if swfsize>(ss[:size]).to_f then error_output << "<td class='error'>expected: #{(ss[:size]).to_f} actual: #{swfsize}</td>"
-      else error_output << "<td>#{swfsize}</td>" end
+      if file_meta[:version].to_i != spec_meta[:version] then error_output<<"<td class='error'>expected: #{spec_meta[:version].to_i} actual: #{file_meta[:version]}</td>"
+      else error_output << "<td>#{file_meta[:version]}</td>" end
+      if file_meta[:frame_rate] != spec_meta[:frame_rate] then error_output << "<td class='error'>expected: #{spec_meta[:frame_rate].to_i} actual: #{file_meta[:frame_rate]}</td>"
+      else error_output << "<td>#{file_meta[:frame_rate]}</td>" end
+      if file_meta[:width].to_i != spec_meta[:width] then error_output << "<td class='error'>expected: #{spec_meta[:width].to_i} actual: #{file_meta[:width]}</td>"
+      else error_output << "<td>#{file_meta[:width]}</td>" end
+      if file_meta[:height].to_i != spec_meta[:height] then error_output<<"<td class='error'>expected: #{spec_meta[:height].to_i} actual: #{file_meta[:height]}</td>"
+      else error_output << "<td>#{file_meta[:height]}</td>" end
+      if file_meta[:size] > spec_meta[:size].to_f then error_output << "<td class='error'>expected: #{spec_meta[:size].to_f} actual: #{file_meta[:size]}K</td>"
+      else error_output << "<td>#{file_meta[:size]}</td>" end
+      error_output<<"</tr>"
+    elsif file_meta[:type]=="bitmap"
+      error_output << "<td>#{file}</td>"
+      error_output << "<td>N/A</td>"
+      error_output << "<td>N/A</td>"
+      error_output << "<td>N/A</td>"
+      error_output << "<td>N/A</td>"
+      if file_meta[:size]>spec_meta[:size] then error_output << "<td class='error'>expected: #{spec_meta[:size]} actual: #{file_meta[:size]}K</td>"
+      else error_output << "<td>#{file_meta[:size]}K</td>" end
       error_output<<"</tr>"
     end
-    error_template_contents.sub!(/\<\!\-\-\*\*ERRORS\*\*\-\-\>/,error_output)
-    File.write("__summary.html",error_template_contents)
   end
 end
-if OPTIONS[:spec_404]
-  error_output<<"<tr class='metaInfo'>"
-  swf_meta_by_short_swf_name.each do |key, value|
-    file=key
-    meta=swf_meta_by_short_swf_name[file]
-    if meta==nil then next end
-    swfsize=(swf_sizes_by_swf[file].to_f/1024).round(2)
-    error_output<<"<td>#{file}</td>"
-    error_output << "<td>#{meta.version}</td>"
-    error_output << "<td>#{meta.frame_rate}</td>"
-    error_output << "<td>#{meta.width}</td>"
-    error_output << "<td>#{meta.height}</td>"
-    error_output << "<td>#{swfsize}</td>"
-    error_output<<"</tr>"
-  end
-  error_template_contents.sub!(/\<\!\-\-\*\*ERRORS\*\*\-\-\>/,error_output)
-  File.write("__summary.html",error_template_contents)
-end
+
+error_template_contents.sub!(/\<\!\-\-\*\*ERRORS\*\*\-\-\>/,error_output)
+File.write("__summary.html",error_template_contents)
 if OPTIONS[:spec_only] then exit(0) end
 
 qatool_template_contents=File.read(qatool_template)
 preview_contents=File.read(preview_template)
 
-js="var swfInfo=[" #js swf info
+#find backup bitmaps for swfs
+backup_bitmaps={}
 swfs.each do |swf|
-  if swf.match(fsr) then name=swf.split(fs)[-1]
-  elsif swf.match(bsr) then name=swf.split(bs)[-1]
-  else name=swf end
-  t="{file:'#{swf}',name:'#{swf}',hash:'#{rand_uuid}'"
-  if summary_swfsByFile
-    edata=summary_swfsByFile[name]
-    if edata
-      if OPTIONS[:autoClickTags]
-        if edata[:click] and edata[:clickTag] then t << ",customClickTag:'#{edata[:clickTag]}',customClickTagValue:'#{edata[:click]}'" end
-      end
-      if edata[:previewTitle] then t << ",previewTitle:'#{edata[:previewTitle]}'" end
+  jpg=swf.dup.sub(swfr,".jpg")
+  gif=swf.dup.sub(swfr,".gif")
+  jpeg=swf.dup.sub(swfr,".jpeg")
+  if File.exists?(jpg) then backup_bitmaps[swf]=jpg end
+  if File.exists?(gif) then backup_bitmaps[swf]=gif end
+  if File.exists?(jpeg) then backup_bitmaps[swf]=jpeg end
+end
+
+js="var swfInfo=[" #js swf info
+qatool_files=files
+if OPTIONS[:listBackupBitmaps] then qatool_files=files
+else qatool_files=swfs end
+qatool_files.each do |file|
+  meta=file_meta_by_file[file]
+  t="{file:'#{file}',name:'#{file}',hash:'#{rand_uuid}',type:'#{meta[:type]}'"
+  spec_meta=specs_by_file[file]
+  if spec_meta
+    if OPTIONS[:autoClickTags]
+      if spec_meta[:click] and spec_meta[:clickTag] then t << ",customClickTag:'#{spec_meta[:clickTag]}',customClickTagValue:'#{spec_meta[:click]}'" end
     end
+    if spec_meta[:previewTitle] then t << ",previewTitle:'#{spec_meta[:previewTitle]}'" end
   end
-  if backupbitmaps[swf] then t<<",backupBitmap:'#{backupbitmaps[swf]}'" end
-  meta="meta:{width:'#{swf_meta_by_swf[swf].width}',height:'#{swf_meta_by_swf[swf].height}',version:'#{swf_meta_by_swf[swf].version}',size:'#{swf_sizes_by_swf[swf]}'}"
+  if backup_bitmaps[file] then t<<",backupBitmap:'#{backup_bitmaps[file]}'" end
+  meta="meta:{width:'#{meta[:width]}',height:'#{meta[:height]}',version:'#{meta[:version]}',size:'#{meta[:size]}'}"
   t<<",#{meta}},"
   js<<t
 end
