@@ -1,3 +1,6 @@
+mkdir bin
+mkdir -p src/bin
+mkdir lib
 cp src/summary.html lib/summary.html
 ruby scripts/build_previewpage_template.rb
 ruby scripts/build_qatool_template.rb
