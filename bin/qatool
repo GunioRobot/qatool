@@ -103,7 +103,8 @@ if swfs.length>0
     header=SwfUtil::read_header(file)
     meta[:type]="swf"
     meta[:version]=header.version
-    meta[:size]=header.size/1024
+    size="%.2f"%Float(Float(File.size(file))/1000)
+    meta[:size]=Float(size)
     meta[:width]=header.width
     meta[:height]=header.height
     meta[:frame_rate]=header.frame_rate
@@ -114,7 +115,7 @@ end
 if jpgs.length>0
   files<<jpgs
   jpgs.each do |file|
-    size=File.size(file)/1024
+    size=File.size(file)/1000
     type="bitmap"
     file_meta_by_file[file]={:size=>size,:type=>type}
   end
@@ -122,7 +123,7 @@ end
 if gifs.length>0
   files<<gifs
   gifs.each do |file|
-    size=File.size(file)/1024
+    size=File.size(file)/1000
     type="bitmap"
     file_meta_by_file[file]={:size=>size,:type=>type}
   end
@@ -130,7 +131,7 @@ end
 if jpegs.length>0
   files<<jpegs
   jpegs.each do |file|
-    size=File.size(file)/1024
+    size=File.size(file)/1000
     type="bitmap"
     file_meta_by_file[file]={:size=>size,:type=>type}
   end
@@ -228,15 +229,15 @@ files.each do |file|
   else
     if file_meta[:type]=="swf"
       error_output<<"<td>#{file}</td>"
-      if file_meta[:version].to_i != spec_meta[:version] then error_output<<"<td class='error'>expected: #{spec_meta[:version].to_i} actual: #{file_meta[:version]}</td>"
+      if file_meta[:version].to_i != spec_meta[:version].to_i then error_output<<"<td class='error'>expected: #{spec_meta[:version].to_i} actual: #{file_meta[:version]}</td>"
       else error_output << "<td>#{file_meta[:version]}</td>" end
-      if file_meta[:frame_rate] != spec_meta[:frame_rate] then error_output << "<td class='error'>expected: #{spec_meta[:frame_rate].to_i} actual: #{file_meta[:frame_rate]}</td>"
+      if file_meta[:frame_rate].to_i != spec_meta[:frame_rate].to_i then error_output << "<td class='error'>expected: #{spec_meta[:frame_rate].to_i} actual: #{file_meta[:frame_rate]}</td>"
       else error_output << "<td>#{file_meta[:frame_rate]}</td>" end
-      if file_meta[:width].to_i != spec_meta[:width] then error_output << "<td class='error'>expected: #{spec_meta[:width].to_i} actual: #{file_meta[:width]}</td>"
+      if file_meta[:width].to_i != spec_meta[:width].to_i then error_output << "<td class='error'>expected: #{spec_meta[:width].to_i} actual: #{file_meta[:width]}</td>"
       else error_output << "<td>#{file_meta[:width]}</td>" end
-      if file_meta[:height].to_i != spec_meta[:height] then error_output<<"<td class='error'>expected: #{spec_meta[:height].to_i} actual: #{file_meta[:height]}</td>"
+      if file_meta[:height].to_i != spec_meta[:height].to_i then error_output<<"<td class='error'>expected: #{spec_meta[:height].to_i} actual: #{file_meta[:height]}</td>"
       else error_output << "<td>#{file_meta[:height]}</td>" end
-      if file_meta[:size] > spec_meta[:size].to_f then error_output << "<td class='error'>expected: #{spec_meta[:size].to_f} actual: #{file_meta[:size]}K</td>"
+      if file_meta[:size].to_f > spec_meta[:size].to_f then error_output << "<td class='error'>expected: #{spec_meta[:size].to_f} actual: #{file_meta[:size]}K</td>"
       else error_output << "<td>#{file_meta[:size]}K</td>" end
       error_output<<"</tr>"
     elsif file_meta[:type]=="bitmap"
@@ -245,7 +246,7 @@ files.each do |file|
       error_output << "<td>N/A</td>"
       error_output << "<td>N/A</td>"
       error_output << "<td>N/A</td>"
-      if file_meta[:size]>spec_meta[:size] then error_output << "<td class='error'>expected: #{spec_meta[:size]} actual: #{file_meta[:size]}K</td>"
+      if file_meta[:size].to_f > spec_meta[:size].to_f then error_output << "<td class='error'>expected: #{spec_meta[:size]} actual: #{file_meta[:size]}K</td>"
       else error_output << "<td>#{file_meta[:size]}K</td>" end
       error_output<<"</tr>"
     end
