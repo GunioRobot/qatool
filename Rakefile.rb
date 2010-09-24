@@ -1,9 +1,8 @@
 require 'rubygems'
-Gem::manage_gems
 require 'rake/gempackagetask'
 spec=Gem::Specification.new do |s|
   s.name="qatool"
-  s.version="1.1.16"
+  s.version="1.1.17"
   s.author="Aaron Smith"
   s.add_dependency("swfheader",">=0.11")
   s.add_dependency("roo",">=1.2.3")
