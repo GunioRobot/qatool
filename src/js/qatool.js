@@ -113,7 +113,7 @@ function createAllDefaultFlashVars()
 			defaulFlashvarKeyValueSetsBySWFHash[hash].push({key:cc,value:ccv});
 		}
 		j=0;
-		k=defaultFlashVars.length;	
+		k=defaultFlashVars.length;
 		for(j;j<k;j++)
 		{
 			if(defaultFlashVars[j].key == cc) continue;
@@ -322,9 +322,9 @@ function onKey(event)
 			inFlashvarsTab=true;
 			selectFlashvarsTab();
 			break;
-		
+
 	}
-	//if(event.keyCode!=107)hideKeysModal();	
+	//if(event.keyCode!=107)hideKeysModal();
 }
 
 function init()
@@ -482,7 +482,7 @@ function clearswfs()
 {
 	if(keysModalShown) hideKeysModal();
 	stopTimer(true);
-	$("embedWrapper").innerHTML="";	
+	$("embedWrapper").innerHTML="";
 }
 
 function getSelectedValuesFromMultiSelect(selectObject)
